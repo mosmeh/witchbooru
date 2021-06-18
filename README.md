@@ -4,6 +4,8 @@
 
 **W**ho **i**s **t**his **ch**aracter?
 
+[Web demo](https://mosmeh.github.io/witchbooru)
+
 **Witchbooru** predicts anime characters in images.
 
 It combines an accurate deep neural network and a lightweight naive Bayes classifier, enabling low-cost updates of the model to support new characters.

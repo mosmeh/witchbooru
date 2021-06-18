@@ -1,0 +1,32 @@
+name: deploy
+
+on:
+    workflow_dispatch:
+    workflow_run:
+        workflows: [build]
+        branches: [master]
+        types: [completed]
+
+jobs:
+    deploy-frontend:
+        runs-on: ubuntu-20.04
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        environment:
+            name: production
+            url: https://mosmeh.github.io/witchbooru
+        defaults:
+            run:
+                working-directory: frontend
+        steps:
+            - uses: actions/checkout@v2
+            - run: npm ci
+            - run: npm run build:gh
+              env:
+                  PREACT_APP_API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
+            - uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./frontend/build
+                  enable_jekyll: false
+                  commit_message: ${{ github.event.head_commit.message }}
+                  force_orphan: true

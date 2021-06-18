@@ -10,6 +10,7 @@ import {
     Section,
     Content,
 } from 'preact-bulma';
+import { baseroute } from '../baseroute';
 
 type RequestData = {
     file: File | null;
@@ -57,7 +58,7 @@ const Result: FunctionalComponent = () => {
 
     useEffect(() => {
         if (!getState() || !getState()?.requestData) {
-            route('/', true);
+            route(`${baseroute}/`, true);
             return;
         }
 

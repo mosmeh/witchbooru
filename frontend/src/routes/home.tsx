@@ -9,6 +9,7 @@ import {
     Control,
     HorizontalGroup,
 } from 'preact-bulma';
+import { baseroute } from '../baseroute';
 
 const Home: FunctionalComponent = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -33,7 +34,7 @@ const Home: FunctionalComponent = () => {
 
     const handleSubmit = (e: JSX.TargetedEvent) => {
         e.preventDefault();
-        route('/result');
+        route(`${baseroute}/result`);
         history.replaceState(
             {
                 requestData: {
