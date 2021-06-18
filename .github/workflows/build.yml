@@ -1,0 +1,16 @@
+name: build
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+    build-frontend:
+        runs-on: ubuntu-20.04
+        defaults:
+            run:
+                working-directory: frontend
+        steps:
+            - uses: actions/checkout@v2
+            - run: npm ci
+            - run: npm run lint
+            - run: npm run checkfmt
+            - run: npm run build

@@ -1,0 +1,7 @@
+/target
+
+/model/*
+!/model/.gitkeep
+
+samconfig.toml
+lambda.zip
