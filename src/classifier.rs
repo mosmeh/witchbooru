@@ -61,7 +61,7 @@ impl Classifier {
 
         let general_tag_probs = &output.as_slice::<f32>()?[..self.general_tags.len()];
         let general_tag_probs =
-            ArrayView1::from_shape((self.general_tags.len(),), &general_tag_probs)?;
+            ArrayView1::from_shape((self.general_tags.len(),), general_tag_probs)?;
 
         let general_tags = self
             .general_tags
@@ -119,7 +119,7 @@ impl Eq for ScoreCmp<'_> {}
 
 impl PartialOrd for ScoreCmp<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(&other))
+        Some(self.cmp(other))
     }
 }
 
