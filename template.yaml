@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ModelBucketName:
+    Type: String
+    Default: 'witchbooru-model'
+
+Resources:
+  WitchbooruApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      BinaryMediaTypes: ['*~1*']
+
+  WitchbooruFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      Runtime: provided
+      CodeUri: ./lambda.zip
+      Handler: witchbooru.bootstrap
+      Timeout: 30
+      MemorySize: 2048
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref ModelBucketName
+      Events:
+        WitchbooruGet:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId:
+              Ref: WitchbooruApi
+        WitchbooruPost:
+          Type: Api
+          Properties:
+            Path: /
+            Method: post
+            RestApiId:
+              Ref: WitchbooruApi
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref ModelBucketName
+
+Outputs:
+  WitchbooruApi:
+    Value: !Sub "https://${WitchbooruApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  WitchbooruFunction:
+    Value: !GetAtt WitchbooruFunction.Arn
+  WitchbooruFunctionIamRole:
+    Value: !GetAtt WitchbooruFunctionRole.Arn

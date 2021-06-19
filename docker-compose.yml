@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+    localstack:
+        image: localstack/localstack
+        ports:
+            - '4566:4566'
+        environment:
+            - SERVICES=${SERVICES-s3,lambda,apigateway}
+            - DEFAULT_REGION=${DEFAULT_REGION-ap-northeast-1}
+            - DATA_DIR=${DATA_DIR- }
+            - HOSTNAME_EXTERNAL=localstack
+        volumes:
+            - '${TMPDIR:-/tmp/localstack}:/tmp/localstack'
+            - '/var/run/docker.sock:/var/run/docker.sock'
+        networks:
+            - localstack
+
+networks:
+    localstack:
+        name: localstack

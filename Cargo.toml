@@ -1,0 +1,27 @@
+[workspace]
+members = [".", "witchbooru-cli", "witchbooru-lambda"]
+
+[package]
+name = "witchbooru"
+version = "0.1.0"
+authors = ["mosm <airman515@gmail.com>"]
+edition = "2018"
+
+[[bench]]
+name = "predict"
+harness = false
+
+[dependencies]
+image = { version = "0.23.14", features = ["gif", "jpeg", "png", "bmp"], default-features = false }
+ndarray-npy = "0.8.0"
+serde = { version = "1.0.126", features = ["derive"], default-features = false }
+thiserror = "1.0.25"
+tract-onnx = "0.14.2"
+
+[dev-dependencies]
+criterion = "0.3.4"
+
+[profile.release]
+panic = 'abort'
+codegen-units = 1
+lto = true

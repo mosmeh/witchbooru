@@ -1,0 +1,11 @@
+[package]
+name = "witchbooru-cli"
+version = "0.1.0"
+authors = ["mosm <airman515@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0.41"
+reqwest = "0.11.3"
+structopt = "0.3.21"
+witchbooru = { path = ".." }
