@@ -11,6 +11,8 @@ import {
 } from 'preact-bulma';
 import { baseroute } from '../baseroute';
 
+const MIME_TYPES = ['image/gif', 'image/jpeg', 'image/png', 'image/bmp'];
+
 const Home: FunctionalComponent = () => {
     const [file, setFile] = useState<File | null>(null);
     const handleFileChange = (e: JSX.TargetedEvent) => {
@@ -18,7 +20,7 @@ const Home: FunctionalComponent = () => {
             return;
         }
 
-        const files: FileList | null = e.target.files;
+        const files = e.target.files;
         if (files && files.length > 0) {
             setFile(files[0]);
         }
@@ -37,10 +39,7 @@ const Home: FunctionalComponent = () => {
         route(`${baseroute}/result`);
         history.replaceState(
             {
-                requestData: {
-                    file,
-                    url,
-                },
+                requestData: { file, url },
             },
             ''
         );
@@ -57,7 +56,10 @@ const Home: FunctionalComponent = () => {
                                     label="Choose a file"
                                     icon="fas fa-upload"
                                     color="info"
-                                    filename={file?.name ?? 'No file selected'}
+                                    accept={MIME_TYPES.join(',')}
+                                    filenames={[
+                                        file?.name ?? 'No file selected',
+                                    ]}
                                     onChange={handleFileChange}
                                 />
                             </Control>
