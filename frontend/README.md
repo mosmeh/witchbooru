@@ -3,11 +3,14 @@
 Built with Preact
 
 ```shell
-cp .env.sample .env
-vi .env
+cd frontend
 
 # install dependencies
 npm install
+
+# edit .env as appropriate
+cp .env.sample .env
+vi .env
 
 # serve with hot reload at localhost:8080
 npm run dev

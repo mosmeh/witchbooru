@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "scripts": {
         "build": "preact build",
-        "build:gh": "cross-env GITHUB_PAGES=witchbooru preact build",
+        "build:gh": "cross-env GITHUB_PAGES=witchbooru preact build && dot-json ./build/manifest.json start_url \"/witchbooru/\"",
         "serve": "sirv build --port 8080 --cors --single",
         "dev": "preact watch",
         "checkfmt": "prettier --check **/*.{js,jsx,ts,tsx,json}",
@@ -57,7 +57,8 @@
         "@typescript-eslint/eslint-plugin": "^4.27.0",
         "@typescript-eslint/parser": "^4.27.0",
         "cross-env": "^7.0.3",
-        "eslint": "^7.28.0",
+        "dot-json": "^1.2.2",
+        "eslint": "^7.29.0",
         "eslint-config-preact": "^1.1.4",
         "eslint-config-prettier": "^8.3.0",
         "preact-cli": "^3.2.2",
