@@ -1,4 +1,4 @@
-import { h, FunctionalComponent } from 'preact';
+import { h, Fragment, FunctionalComponent } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { route } from 'preact-router';
 import {
@@ -111,7 +111,7 @@ const Result: FunctionalComponent = () => {
     }
 
     return (
-        <div>
+        <>
             <div className="block">
                 <Button
                     color="link"
@@ -142,12 +142,12 @@ const Result: FunctionalComponent = () => {
                 </div>
             ) : (
                 <div className="container is-max-desktop">
-                    <Message title="Error" className="is-danger">
+                    <Message title="Error" class="is-danger">
                         {responseData.error}
                     </Message>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
@@ -210,7 +210,7 @@ const TagTable: FunctionalComponent<TagTableProps> = ({
                 <tr>
                     <td colSpan={2}>
                         <Section>
-                            <Content className="has-text-grey has-text-centered">
+                            <Content class="has-text-grey has-text-centered">
                                 <p>
                                     <Icon icon="far fa-3x fa-frown" />
                                 </p>
