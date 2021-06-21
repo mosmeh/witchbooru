@@ -1,12 +1,12 @@
 use crate::{
     models::{NaiveBayes, NeuralNet},
-    topk::IteratorExt,
     Result,
 };
 
 use image::DynamicImage;
 use serde::Serialize;
-use tract_onnx::tract_core::ndarray::ArrayView1;
+use std::cmp::Reverse;
+use tract_onnx::tract_core::{ndarray::ArrayView1, tract_data::itertools::Itertools};
 
 pub struct Params {
     pub neural_net: NeuralNet,
@@ -67,17 +67,20 @@ impl Classifier {
             .general_tags
             .iter()
             .zip(general_tag_probs.iter())
-            .filter(|(_, x)| **x > 0.5)
+            .filter(|(_, prob)| **prob > 0.5)
             .map(|(name, prob)| {
-                ScoreCmp(Tag {
+                Reverse(ScoreCmp(Tag {
                     name: name.as_str(),
                     score: *prob,
-                })
+                }))
             })
-            .topk(self.topk)
-            .map(|x| Tag {
-                name: x.0.name,
-                score: logit(x.0.score),
+            .k_smallest(self.topk)
+            .map(|x| {
+                let Tag { name, score } = x.0 .0;
+                Tag {
+                    name,
+                    score: logit(score),
+                }
             })
             .collect();
 
@@ -87,13 +90,13 @@ impl Classifier {
             .iter()
             .zip(character_logits.iter())
             .map(|(name, score)| {
-                ScoreCmp(Tag {
+                Reverse(ScoreCmp(Tag {
                     name: name.as_str(),
                     score: *score,
-                })
+                }))
             })
-            .topk(self.topk)
-            .map(|x| x.0)
+            .k_smallest(self.topk)
+            .map(|x| x.0 .0)
             .collect();
 
         Ok(Prediction {

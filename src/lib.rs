@@ -1,10 +1,8 @@
 mod classifier;
 pub mod models;
-mod topk;
 
 pub use classifier::{Classifier, Params, Prediction};
 pub use image;
-pub use tract_onnx::tract_core::ndarray;
 
 use thiserror::Error;
 
