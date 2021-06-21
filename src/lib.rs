@@ -1,7 +1,7 @@
 mod classifier;
 pub mod models;
 
-pub use classifier::{Classifier, Params, Prediction};
+pub use classifier::{Classifier, Params, Prediction, Tag};
 pub use image;
 
 use thiserror::Error;

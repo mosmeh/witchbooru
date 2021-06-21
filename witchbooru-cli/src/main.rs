@@ -1,3 +1,5 @@
+mod format;
+
 use witchbooru::{
     image,
     models::{NaiveBayes, NeuralNet},
@@ -37,14 +39,7 @@ fn main() -> anyhow::Result<()> {
     let img = image::open(&opt.image)?;
     let prediction = classifier.predict(img)?;
 
-    println!("Characters:");
-    for tag in prediction.character() {
-        println!("{:7.3} {}", tag.score, tag.name);
-    }
-    println!("General tags:");
-    for tag in prediction.general() {
-        println!("{:7.3} {}", tag.score, tag.name);
-    }
+    println!("{}", format::Display(&prediction));
 
     Ok(())
 }
