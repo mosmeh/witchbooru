@@ -1,5 +1,5 @@
 import { h, FunctionalComponent, JSX } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useRef, useEffect } from 'preact/hooks';
 import { route } from 'preact-router';
 import {
     FileInput,
@@ -44,6 +44,30 @@ const Home: FunctionalComponent = () => {
             ''
         );
     };
+
+    useEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer) {
+            e.dataTransfer.dropEffect = 'copy';
+        }
+    });
+
+    useEventListener('drop', (e) => {
+        e.preventDefault();
+        if (!e.dataTransfer) {
+            return;
+        }
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && MIME_TYPES.includes(files[0].type)) {
+            setFile(files[0]);
+        }
+
+        const url = e.dataTransfer.getData('text').trim();
+        if (url !== '') {
+            setUrl(url);
+        }
+    });
 
     return (
         <div className="container is-max-desktop">
@@ -94,5 +118,22 @@ const Home: FunctionalComponent = () => {
         </div>
     );
 };
+
+function useEventListener<K extends keyof WindowEventMap>(
+    event: K,
+    handler: (event: WindowEventMap[K]) => void
+) {
+    const handlerRef = useRef<(event: WindowEventMap[K]) => void>();
+
+    useEffect(() => {
+        handlerRef.current = handler;
+    }, [handler]);
+
+    useEffect(() => {
+        const listener = handlerRef.current;
+        window.addEventListener(event, listener);
+        return () => window.removeEventListener(event, listener);
+    }, [event]);
+}
 
 export default Home;
