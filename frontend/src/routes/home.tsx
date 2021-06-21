@@ -36,7 +36,7 @@ const Home: FunctionalComponent = () => {
 
     const handleSubmit = (e: JSX.TargetedEvent) => {
         e.preventDefault();
-        route(`${baseroute}/result`);
+        route(`${baseroute}/result/`);
         history.replaceState(
             {
                 requestData: { file, url },
