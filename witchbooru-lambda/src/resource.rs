@@ -21,6 +21,7 @@ pub async fn create_classifier() -> anyhow::Result<Classifier> {
         region_name.parse()?
     };
     let client = S3Client::new(region);
+    log::info!("Initialized S3 client");
 
     let (neural_net, naive_bayes, general_tags, character_tags) = futures::try_join!(
         download_neural_net(&client, bucket.clone()),
@@ -28,6 +29,7 @@ pub async fn create_classifier() -> anyhow::Result<Classifier> {
         download_tags(&client, bucket.clone(), "general-tags.txt".into()),
         download_tags(&client, bucket, "character-tags.txt".into())
     )?;
+    log::info!("Loaded all model components");
 
     let params = Params {
         neural_net,
@@ -42,16 +44,22 @@ pub async fn create_classifier() -> anyhow::Result<Classifier> {
 
 async fn download_neural_net(client: &S3Client, bucket: String) -> anyhow::Result<NeuralNet> {
     let reader = download_binary(client, bucket, "neural-net.onnx".into()).await?;
-    tokio::task::spawn_blocking(|| NeuralNet::new(reader))
-        .await?
-        .map_err(Into::into)
+    log::info!("Downloaded neural net");
+
+    let neural_net = tokio::task::spawn_blocking(|| NeuralNet::new(reader)).await?;
+    log::info!("Loaded neural net");
+
+    neural_net.map_err(Into::into)
 }
 
 async fn download_naive_bayes(client: &S3Client, bucket: String) -> anyhow::Result<NaiveBayes> {
     let reader = download_binary(client, bucket, "naive-bayes.npz".into()).await?;
-    tokio::task::spawn_blocking(|| NaiveBayes::new(reader))
-        .await?
-        .map_err(Into::into)
+    log::info!("Downloaded naive bayes");
+
+    let naive_bayes = tokio::task::spawn_blocking(|| NaiveBayes::new(reader)).await?;
+    log::info!("Loaded naive bayes");
+
+    naive_bayes.map_err(Into::into)
 }
 
 async fn download_tags(

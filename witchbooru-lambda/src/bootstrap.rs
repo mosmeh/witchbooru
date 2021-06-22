@@ -16,6 +16,8 @@ static CLASSIFIER: OnceCell<Classifier> = OnceCell::const_new();
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
     let classifier = async {
         CLASSIFIER
             .get_or_try_init(resource::create_classifier)
@@ -67,6 +69,7 @@ async fn handler(req: Request) -> anyhow::Result<Value> {
 
     let (classifier, img) = futures::try_join!(classifier, img)?;
     let prediction = tokio::task::spawn_blocking(move || classifier.predict(img)).await??;
+    log::info!("Finished inference");
 
     let general: Vec<_> = prediction.general().iter().collect();
     let character: Vec<_> = prediction.character().iter().collect();

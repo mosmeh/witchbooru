@@ -10,7 +10,9 @@ path = "src/bootstrap.rs"
 
 [dependencies]
 anyhow = { version = "1.0.41", default-features = false }
+env_logger = { version = "0.8.4", default-features = false }
 futures = "0.3.15"
+log = "0.4.14"
 multipart = { version = "0.18.0", features = ["server"], default-features = false }
 netlify_lambda_http = "0.2.0"
 reqwest = { version = "0.11.3", features = ["rustls-tls", "stream"], default-features = false }
