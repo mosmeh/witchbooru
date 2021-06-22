@@ -10,6 +10,10 @@
 
 It combines an accurate deep neural network and a lightweight naive Bayes classifier, enabling low-cost updates of the model to handle the ever-increasing number of characters.
 
+## Training / preparing model
+
+See [scripts/README](scripts/README.md)
+
 ## Lambda function
 
 ### Build
@@ -32,9 +36,11 @@ sam local start-api --docker-network localstack
 
 ```shell
 sam deploy --guided
+
+# Upload model files to S3 as appropriate
 ```
 
-## CLI
+## Command-line interface
 
 ```shell
 cargo run -p witchbooru-cli --release -- /path/to/img -m ./model
