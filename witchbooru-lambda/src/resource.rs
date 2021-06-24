@@ -4,9 +4,10 @@ use witchbooru::{
 };
 
 use anyhow::anyhow;
+use futures::future;
 use rusoto_core::{ByteStream, Region};
 use rusoto_s3::{GetObjectRequest, S3Client, S3};
-use std::io::{Cursor, Read, Seek};
+use std::io::Cursor;
 use tokio::io::AsyncReadExt;
 
 pub async fn create_classifier() -> anyhow::Result<Classifier> {
@@ -43,7 +44,20 @@ pub async fn create_classifier() -> anyhow::Result<Classifier> {
 }
 
 async fn download_neural_net(client: &S3Client, bucket: String) -> anyhow::Result<NeuralNet> {
-    let reader = download_binary(client, bucket, "neural-net.onnx".into()).await?;
+    let num_chunks = std::env::var("NEURAL_NET_NUM_CHUNKS")
+        .unwrap_or_else(|_| "1".to_owned())
+        .parse()?;
+
+    let bin = if num_chunks == 1 {
+        download_binary(client, bucket, "neural-net.onnx".into()).await?
+    } else {
+        let chunks = future::try_join_all((0..num_chunks).map(|i| {
+            download_binary(client, bucket.clone(), format!("neural-net.onnx.part{}", i))
+        }))
+        .await?;
+        chunks.concat()
+    };
+    let reader = Cursor::new(bin);
     log::info!("Downloaded neural net");
 
     let neural_net = tokio::task::spawn_blocking(|| NeuralNet::new(reader)).await?;
@@ -53,7 +67,8 @@ async fn download_neural_net(client: &S3Client, bucket: String) -> anyhow::Resul
 }
 
 async fn download_naive_bayes(client: &S3Client, bucket: String) -> anyhow::Result<NaiveBayes> {
-    let reader = download_binary(client, bucket, "naive-bayes.npz".into()).await?;
+    let bin = download_binary(client, bucket, "naive-bayes.npz".into()).await?;
+    let reader = Cursor::new(bin);
     log::info!("Downloaded naive bayes");
 
     let naive_bayes = tokio::task::spawn_blocking(|| NaiveBayes::new(reader)).await?;
@@ -82,14 +97,14 @@ async fn download_binary(
     client: &S3Client,
     bucket: String,
     key: String,
-) -> anyhow::Result<impl Read + Seek> {
+) -> anyhow::Result<Vec<u8>> {
     let mut buf = Vec::new();
     get_byte_stream(client, bucket, key)
         .await?
         .into_async_read()
         .read_to_end(&mut buf)
         .await?;
-    Ok(Cursor::new(buf))
+    Ok(buf)
 }
 
 async fn get_byte_stream(

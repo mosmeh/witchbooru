@@ -5,6 +5,9 @@ Parameters:
     ModelBucketName:
         Type: String
         Default: 'witchbooru-model'
+    NeuralNetNumChunks:
+        Type: Number
+        Default: 4
 
 Resources:
     WitchbooruApi:
@@ -26,6 +29,7 @@ Resources:
             Environment:
                 Variables:
                     BUCKET_NAME: !Ref ModelBucketName
+                    NEURAL_NET_NUM_CHUNKS: !Ref NeuralNetNumChunks
             Events:
                 WitchbooruGet:
                     Type: Api
