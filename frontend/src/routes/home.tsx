@@ -1,4 +1,4 @@
-import { h, FunctionalComponent, JSX } from 'preact';
+import { h, Fragment, FunctionalComponent, JSX } from 'preact';
 import { useState, useRef, useEffect } from 'preact/hooks';
 import { route } from 'preact-router';
 import {
@@ -70,52 +70,62 @@ const Home: FunctionalComponent = () => {
     });
 
     return (
-        <div className="container is-max-desktop">
-            <form onSubmit={handleSubmit}>
-                <div className="block">
-                    <HorizontalGroup label="Upload">
-                        <Field>
-                            <Control>
-                                <FileInput
-                                    label="Choose a file"
-                                    icon="fas fa-upload"
-                                    color="info"
-                                    accept={MIME_TYPES.join(',')}
-                                    filenames={[
-                                        file?.name ?? 'No file selected',
-                                    ]}
-                                    onChange={handleFileChange}
-                                />
-                            </Control>
-                        </Field>
-                    </HorizontalGroup>
-                </div>
-                <div className="block">
-                    <HorizontalGroup label=" ">or</HorizontalGroup>
-                </div>
-                <div className="block">
-                    <HorizontalGroup label="From URL">
-                        <Field>
-                            <Control>
-                                <TextInput
-                                    type="url"
-                                    placeholder="URL"
-                                    value={url}
-                                    onInput={handleUrlInput}
-                                />
-                            </Control>
-                        </Field>
-                    </HorizontalGroup>
-                </div>
-                <div className="field is-grouped is-grouped-right">
-                    <Control>
-                        <Button color="primary" type="submit">
-                            Submit
-                        </Button>
-                    </Control>
-                </div>
-            </form>
-        </div>
+        <>
+            <div className="block">
+                <p>
+                    <strong>5,800+</strong> general tags
+                </p>
+                <p>
+                    <strong>5,000+</strong> characters
+                </p>
+            </div>
+            <div className="container is-max-desktop">
+                <form onSubmit={handleSubmit}>
+                    <div className="block">
+                        <HorizontalGroup label="Upload">
+                            <Field>
+                                <Control>
+                                    <FileInput
+                                        label="Choose a file"
+                                        icon="fas fa-upload"
+                                        color="info"
+                                        accept={MIME_TYPES.join(',')}
+                                        filenames={[
+                                            file?.name ?? 'No file selected',
+                                        ]}
+                                        onChange={handleFileChange}
+                                    />
+                                </Control>
+                            </Field>
+                        </HorizontalGroup>
+                    </div>
+                    <div className="block">
+                        <HorizontalGroup label=" ">or</HorizontalGroup>
+                    </div>
+                    <div className="block">
+                        <HorizontalGroup label="From URL">
+                            <Field>
+                                <Control>
+                                    <TextInput
+                                        type="url"
+                                        placeholder="URL"
+                                        value={url}
+                                        onInput={handleUrlInput}
+                                    />
+                                </Control>
+                            </Field>
+                        </HorizontalGroup>
+                    </div>
+                    <div className="field is-grouped is-grouped-right">
+                        <Control>
+                            <Button color="primary" type="submit">
+                                Submit
+                            </Button>
+                        </Control>
+                    </div>
+                </form>
+            </div>
+        </>
     );
 };
 
