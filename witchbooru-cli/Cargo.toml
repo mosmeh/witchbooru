@@ -7,6 +7,5 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0.41"
 itertools = "0.10.1"
-reqwest = "0.11.3"
 structopt = "0.3.21"
 witchbooru = { path = ".." }
