@@ -1,10 +1,5 @@
 # Training / model conversion scripts
 
-We need following materials:
-
--   [Danbooru dataset](https://www.gwern.net/Danbooru2020) (only metadata)
--   [DeepDanbooru pretrained model](https://github.com/KichangKim/DeepDanbooru/releases)
-
 ## Setup
 
 ```shell
@@ -13,18 +8,34 @@ pipenv --python 3
 pipenv sync
 ```
 
+## Download dataset and pretrained model
+
+[Danbooru dataset](https://www.gwern.net/Danbooru2020) (only metadata)
+
+```shell
+rsync --verbose --recursive rsync://78.46.86.149:873/danbooru2020/metadata/ ./data/metadata
+```
+
+[DeepDanbooru pretrained model](https://github.com/KichangKim/DeepDanbooru/releases)
+
+```shell
+wget https://github.com/KichangKim/DeepDanbooru/releases/download/v4-20200814-sgd-e30/deepdanbooru-v4-20200814-sgd-e30.zip \
+    -O ./data/deepdanbooru.zip
+unzip ./data/deepdanbooru.zip -d ./data/deepdanbooru
+```
+
 ## Train naive Bayes model
 
 ```shell
-cp /deepdanbooru/tags-general.txt ../model/general-tags.txt
+cp ./data/deepdanbooru/tags-general.txt ../model/general-tags.txt
 
 # List characters that appear in at least 50 posts
-pipenv run python list_characters.py /danbooru/metadata/ \
+pipenv run python list_characters.py ./data/metadata/ \
     -t 50 \
     -o ../model/character-tags.txt
 
 # Estimate naive Bayes parameters
-pipenv run python train.py /danbooru/metadata/ \
+pipenv run python train.py ./data/metadata/ \
     --general ../model/general-tags.txt \
     --character ../model/character-tags.txt \
     -o ../model/naive-bayes.npz
@@ -34,7 +45,7 @@ pipenv run python train.py /danbooru/metadata/ \
 
 ```shell
 # Convert Keras model to ONNX
-pipenv run python keras2onnx.py /deepdanbooru/model-resnet_custom.h5 \
+pipenv run python keras2onnx.py ./data/deepdanbooru/model-resnet_custom_v4.h5 \
     -o ../model/neural-net.onnx
 
 # Split model into smaller chunks
