@@ -7,7 +7,7 @@ pub struct Display<'a>(pub &'a Prediction<'a>);
 
 impl fmt::Display for Display<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        const SCORE_WIDTH: usize = 7;
+        const SCORE_WIDTH: usize = 5;
         const SEPARATOR: &str = "─";
 
         let (left, right) = (self.0.general(), self.0.character());

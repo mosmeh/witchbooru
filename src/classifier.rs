@@ -75,13 +75,7 @@ impl Classifier {
                 }))
             })
             .k_smallest(self.topk)
-            .map(|x| {
-                let Tag { name, score } = x.0 .0;
-                Tag {
-                    name,
-                    score: logit(score),
-                }
-            })
+            .map(|Reverse(ScoreCmp(x))| x)
             .collect();
 
         let character_logits = self.naive_bayes.predict(general_tag_probs);
@@ -89,14 +83,17 @@ impl Classifier {
             .character_tags
             .iter()
             .zip(character_logits.iter())
-            .map(|(name, score)| {
+            .map(|(name, logit)| {
                 Reverse(ScoreCmp(Tag {
                     name: name.as_str(),
-                    score: *score,
+                    score: *logit,
                 }))
             })
             .k_smallest(self.topk)
-            .map(|x| x.0 .0)
+            .map(|Reverse(ScoreCmp(Tag { name, score: logit }))| Tag {
+                name,
+                score: sigmoid(logit),
+            })
             .collect();
 
         Ok(Prediction {
@@ -106,8 +103,8 @@ impl Classifier {
     }
 }
 
-fn logit(p: f32) -> f32 {
-    f32::ln(p / (1.0 - p))
+fn sigmoid(x: f32) -> f32 {
+    1.0 / (1.0 + f32::exp(-x))
 }
 
 struct ScoreCmp<'a>(Tag<'a>);
