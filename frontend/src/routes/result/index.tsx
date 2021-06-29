@@ -203,7 +203,9 @@ const TagTable: FunctionalComponent<TagTableProps> = ({
                         </td>
                         <td class={styles.tagScore}>
                             <span className="is-pulled-right">
-                                {score.toFixed(3)}
+                                {(typeof score === 'number' &&
+                                    score.toFixed(3)) ||
+                                    ''}
                             </span>
                         </td>
                     </tr>
