@@ -9,7 +9,7 @@ import argparse
 
 @dataclass
 class CountData:
-    total: int
+    num_posts: int
     gc_count: np.ndarray
     general_count: np.ndarray
     character_count: np.ndarray
@@ -19,7 +19,7 @@ def count(general_tag_ids: dict[str, int],
           character_ids: dict[str, int],
           solo_heuristic: bool,
           filename: str) -> CountData:
-    total = 0
+    num_posts = 0
     general_count = np.zeros(len(general_tag_ids.keys()), dtype=np.uint32)
     character_count = np.zeros(len(character_ids.keys()), dtype=np.uint32)
     gc_count = np.zeros(
@@ -39,13 +39,13 @@ def count(general_tag_ids: dict[str, int],
         characters = [character_ids[tag['name']] for tag in tags
                       if tag['category'] == '4' and tag['name'] in character_ids]
 
-        total += 1
+        num_posts += 1
         general_count[general_tags] += 1
         character_count[characters] += 1
         for c in characters:
             gc_count[general_tags, c] += 1
 
-    return CountData(total, gc_count, general_count, character_count)
+    return CountData(num_posts, gc_count, general_count, character_count)
 
 
 def main(args: argparse.Namespace):
@@ -59,7 +59,7 @@ def main(args: argparse.Namespace):
     partial_count = partial(count, general_tag_ids,
                             character_ids, args.solo_heuristic)
 
-    total = 0
+    num_posts = 0
     general_count = np.zeros(len(general_tags), dtype=np.uint32)
     character_count = np.zeros(len(characters), dtype=np.uint32)
     gc_count = np.zeros(
@@ -70,7 +70,7 @@ def main(args: argparse.Namespace):
                  for filename in os.listdir(args.metadata_dir))
 
     for result in pool.map(partial_count, filenames):
-        total += result.total
+        num_posts += result.num_posts
         general_count += result.general_count
         character_count += result.character_count
         gc_count += result.gc_count
@@ -78,11 +78,22 @@ def main(args: argparse.Namespace):
     freq_c = (gc_count + args.smoothing) / \
         (character_count + 2 * args.smoothing)
     freq_nc = (general_count[:, None] - gc_count + args.smoothing) / \
-        (total - character_count + 2 * args.smoothing)
+        (num_posts - character_count + 2 * args.smoothing)
 
     a = np.log(freq_c) + np.log(1 - freq_nc) - \
         np.log(freq_nc) - np.log(1 - freq_c)
     b = np.sum(np.log(1 - freq_c) - np.log(1 - freq_nc), axis=0)
+
+    if args.calibration_heuristic:
+        # A heuristic for compensating overconfident score of naive Bayes classifier
+        # because of its assumption that features are independent.
+        # This is a totally ad-hoc solution, but since we are mainly interested in
+        # the ranking of tags and this heuristic modifies only the scale of scores,
+        # we are OK with it.
+
+        mean_general_count = np.sum(general_count) / num_posts
+        a /= mean_general_count
+        b /= mean_general_count
 
     a = a.astype(np.float32)
     b = b.astype(np.float32)
@@ -102,6 +113,9 @@ if __name__ == '__main__':
     parser.add_argument('--solo-heuristic',
                         action=argparse.BooleanOptionalAction, default=True,
                         help='Use only posts tagged with single character')
+    parser.add_argument('--calibration-heuristic',
+                        action=argparse.BooleanOptionalAction, default=True,
+                        help='Calibrate scores')
     parser.add_argument('-p', '--processes', type=int, default=1)
     parser.add_argument('-o', '--output')
     args = parser.parse_args()
