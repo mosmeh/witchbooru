@@ -10,7 +10,8 @@ import {
     Section,
     Content,
 } from 'preact-bulma';
-import { baseroute } from '../baseroute';
+import { baseroute } from '../../baseroute';
+import styles from './style.css';
 
 type RequestData = {
     file: File | null;
@@ -191,7 +192,7 @@ const TagTable: FunctionalComponent<TagTableProps> = ({
             {(list &&
                 list.map(({ name, score }) => (
                     <tr key={name}>
-                        <td>
+                        <td class={styles.tagName}>
                             <a
                                 href={`https://danbooru.donmai.us/wiki_pages/${name}`}
                                 target="_blank"
@@ -200,7 +201,7 @@ const TagTable: FunctionalComponent<TagTableProps> = ({
                                 {name}
                             </a>
                         </td>
-                        <td>
+                        <td class={styles.tagScore}>
                             <span className="is-pulled-right">
                                 {score.toFixed(3)}
                             </span>
