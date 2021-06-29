@@ -67,7 +67,6 @@ impl Classifier {
             .general_tags
             .iter()
             .zip(general_tag_probs.iter())
-            .filter(|(_, prob)| **prob > 0.5)
             .map(|(name, prob)| {
                 Reverse(ScoreCmp(Tag {
                     name: name.as_str(),
