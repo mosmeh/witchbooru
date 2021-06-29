@@ -8,6 +8,16 @@ import argparse
 
 
 @dataclass
+class Params:
+    num_general_tags: int
+    num_characters: int
+    general_tag_ids: dict[str, int]
+    character_ids: dict[str, int]
+    character_implications: dict[str, str]
+    solo_heuristic: bool
+
+
+@dataclass
 class CountData:
     num_posts: int
     gc_count: np.ndarray
@@ -15,29 +25,36 @@ class CountData:
     character_count: np.ndarray
 
 
-def count(general_tag_ids: dict[str, int],
-          character_ids: dict[str, int],
-          solo_heuristic: bool,
-          filename: str) -> CountData:
+def count(params: Params, filename: str) -> CountData:
     num_posts = 0
-    general_count = np.zeros(len(general_tag_ids.keys()), dtype=np.uint32)
-    character_count = np.zeros(len(character_ids.keys()), dtype=np.uint32)
+    general_count = np.zeros(params.num_general_tags, dtype=np.uint32)
+    character_count = np.zeros(params.num_characters, dtype=np.uint32)
     gc_count = np.zeros(
-        (len(general_tag_ids.keys()), len(character_ids.keys())),
-        dtype=np.uint32)
+        (params.num_general_tags, params.num_characters), dtype=np.uint32)
 
     for line in open(filename, 'r', encoding='utf-8'):
         tags = json.loads(line)['tags']
 
-        if solo_heuristic:
-            num_characters = sum(1 for tag in tags if tag['category'] == '4')
+        if params.solo_heuristic:
+            if params.character_implications:
+                num_characters = len(frozenset(
+                    params.character_implications.get(tag['name'], tag['name'])
+                    for tag in tags if tag['category'] == '4'
+                ))
+            else:
+                num_characters = sum(
+                    1 for tag in tags if tag['category'] == '4')
             if num_characters > 1:
                 continue
 
-        general_tags = [general_tag_ids[tag['name']] for tag in tags
-                        if tag['category'] == '0' and tag['name'] in general_tag_ids]
-        characters = [character_ids[tag['name']] for tag in tags
-                      if tag['category'] == '4' and tag['name'] in character_ids]
+        general_tags = list(frozenset(
+            params.general_tag_ids[tag['name']] for tag in tags
+            if tag['category'] == '0' and tag['name'] in params.general_tag_ids
+        ))
+        characters = list(frozenset(
+            params.character_ids[tag['name']] for tag in tags
+            if tag['category'] == '4' and tag['name'] in params.character_ids
+        ))
 
         num_posts += 1
         general_count[general_tags] += 1
@@ -45,31 +62,66 @@ def count(general_tag_ids: dict[str, int],
         for c in characters:
             gc_count[general_tags, c] += 1
 
-    return CountData(num_posts, gc_count, general_count, character_count)
+    return CountData(
+        num_posts=num_posts,
+        gc_count=gc_count,
+        general_count=general_count,
+        character_count=character_count
+    )
 
 
 def main(args: argparse.Namespace):
+    if args.mapping:
+        mappings = json.load(open(args.mapping, 'r'))
+    else:
+        mappings = None
+
     general_tags = open(args.general, 'r').read().splitlines()
     characters = open(args.character, 'r').read().splitlines()
+    num_general_tags = len(general_tags)
+    num_characters = len(characters)
 
     general_tag_ids = {x: i for (i, x) in enumerate(general_tags)}
-    character_ids = {x: i for (i, x) in enumerate(characters)}
+    if mappings:
+        general_tag_mappings = mappings['general']
+        for mapping in general_tag_mappings.values():
+            for from_tag, to_tag in mapping.items():
+                if (not from_tag in general_tag_ids) and (to_tag in general_tag_ids):
+                    general_tag_ids[from_tag] = general_tag_ids[to_tag]
 
-    pool = Pool(args.processes)
-    partial_count = partial(count, general_tag_ids,
-                            character_ids, args.solo_heuristic)
+    character_ids = {x: i for (i, x) in enumerate(characters)}
+    if mappings:
+        character_mappings = mappings['character']
+        character_implications = character_mappings['implications']
+        for from_tag, to_tag in character_mappings['aliases'].items():
+            if to_tag in character_ids:
+                character_ids[from_tag] = character_ids[to_tag]
+    else:
+        character_implications = None
+
+    params = Params(num_general_tags=num_general_tags,
+                    num_characters=num_characters,
+                    general_tag_ids=general_tag_ids,
+                    character_ids=character_ids,
+                    character_implications=character_implications,
+                    solo_heuristic=args.solo_heuristic)
+    count_with_params = partial(count, params)
 
     num_posts = 0
-    general_count = np.zeros(len(general_tags), dtype=np.uint32)
-    character_count = np.zeros(len(characters), dtype=np.uint32)
-    gc_count = np.zeros(
-        (len(general_tags), len(characters)),
-        dtype=np.uint32)
+    general_count = np.zeros(num_general_tags, dtype=np.uint32)
+    character_count = np.zeros(num_characters, dtype=np.uint32)
+    gc_count = np.zeros((num_general_tags, num_characters), dtype=np.uint32)
 
     filenames = (os.path.join(args.metadata_dir, filename)
                  for filename in os.listdir(args.metadata_dir))
 
-    for result in pool.map(partial_count, filenames):
+    if args.processes == 1:
+        results = map(count_with_params, filenames)
+    else:
+        pool = Pool(args.processes)
+        results = pool.map(count_with_params, filenames)
+
+    for result in results:
         num_posts += result.num_posts
         general_count += result.general_count
         character_count += result.character_count
@@ -108,6 +160,8 @@ if __name__ == '__main__':
                         help='File containing list of general tags')
     parser.add_argument('-c', '--character',
                         help='File containing list of characters')
+    parser.add_argument('-m', '--mapping',
+                        help='File containing tag mappings')
     parser.add_argument('-s', '--smoothing', type=float, default=0.1,
                         help='Laplace (additive) smoothing parameter')
     parser.add_argument('--solo-heuristic',
