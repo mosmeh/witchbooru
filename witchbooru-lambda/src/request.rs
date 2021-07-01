@@ -11,14 +11,17 @@ use std::{
 };
 
 pub async fn extract_image(req: &Request) -> anyhow::Result<DynamicImage> {
-    if let Some(img) = from_multipart(req).await? {
-        log::info!("Extracted image from multipart/form-data");
-        return Ok(img);
+    if req.method() == http::Method::POST {
+        if let Some(img) = from_multipart(req).await? {
+            log::info!("Extracted image from multipart/form-data");
+            return Ok(img);
+        }
+        if let Some(img) = from_form_urlencoded(req).await? {
+            log::info!("Extracted image from application/x-www-form-urlencoded");
+            return Ok(img);
+        }
     }
-    if let Some(img) = from_form_urlencoded(req).await? {
-        log::info!("Extracted image from application/x-www-form-urlencoded");
-        return Ok(img);
-    }
+
     if let Some(img) = from_query_params(req).await? {
         log::info!("Extracted image from query parameters");
         return Ok(img);
