@@ -9,6 +9,7 @@ import {
     Icon,
     Section,
     Content,
+    Progress,
 } from 'preact-bulma';
 import { baseroute } from '../../baseroute';
 import styles from './style.css';
@@ -183,17 +184,16 @@ const TagTable: FunctionalComponent<TagTableProps> = ({
         <thead>
             <tr>
                 <th>{category}</th>
-                <th>
-                    <span className="is-pulled-right">Score</span>
-                </th>
+                <th>Score</th>
             </tr>
         </thead>
         <tbody>
             {(list &&
                 list.map(({ name, score }) => (
                     <tr key={name}>
-                        <td class={styles.tagName}>
+                        <td class={styles.tagNameColumn}>
                             <a
+                                title={name}
                                 href={`https://danbooru.donmai.us/wiki_pages/${name}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -201,12 +201,21 @@ const TagTable: FunctionalComponent<TagTableProps> = ({
                                 {name}
                             </a>
                         </td>
-                        <td class={styles.tagScore}>
-                            <span className="is-pulled-right">
-                                {(typeof score === 'number' &&
-                                    score.toFixed(3)) ||
-                                    ''}
-                            </span>
+                        <td class={styles.tagScoreColumn}>
+                            {typeof score === 'number' && (
+                                <div class={styles.tagScore}>
+                                    <Progress
+                                        size="small"
+                                        color="info"
+                                        value={score}
+                                        max={1}
+                                        class={styles.tagScoreBar}
+                                    />
+                                    <span class={styles.tagScoreLabel}>
+                                        {score.toFixed(3)}
+                                    </span>
+                                </div>
+                            )}
                         </td>
                     </tr>
                 ))) || (
