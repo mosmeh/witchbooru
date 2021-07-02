@@ -7,7 +7,7 @@ pub struct Display<'a>(pub &'a Prediction<'a>);
 
 impl fmt::Display for Display<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        const SCORE_WIDTH: usize = 5;
+        const SCORE_WIDTH: usize = 14;
         const SEPARATOR: &str = "─";
 
         let (left, right) = (self.0.general(), self.0.character());
@@ -22,7 +22,7 @@ impl fmt::Display for Display<'_> {
 
         writeln!(
             f,
-            " {:left_name_width$} {score:>score_width$}   {:right_name_width$} {score:>score_width$} ",
+            " {:left_name_width$} {score:score_width$}   {:right_name_width$} {score:score_width$} ",
             left_category,
             right_category,
             score = "Score",
@@ -70,15 +70,22 @@ impl fmt::Display for Display<'_> {
 }
 
 fn format_tag(tag: &Tag, name_width: usize, score_width: usize) -> String {
+    const SCORE_BAR_WIDTH: usize = 8;
+
+    let name = Hyperlink {
+        text: tag.name,
+        url: &format!("https://danbooru.donmai.us/wiki_pages/{}", tag.name),
+        width: name_width,
+    };
+    let score_bar_len = (tag.score * SCORE_BAR_WIDTH as f32).round() as usize;
+
     format!(
-        "{} {:>score_width$.3}",
-        Hyperlink {
-            text: tag.name,
-            url: &format!("https://danbooru.donmai.us/wiki_pages/{}", tag.name),
-            width: name_width,
-        },
+        "{} {:score_bar_width$} {:>score_label_width$.3}",
+        name,
+        "▄".repeat(score_bar_len),
         tag.score,
-        score_width = score_width
+        score_bar_width = SCORE_BAR_WIDTH,
+        score_label_width = score_width - SCORE_BAR_WIDTH - 1
     )
 }
 
