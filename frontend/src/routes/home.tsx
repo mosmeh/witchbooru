@@ -140,7 +140,8 @@ function useEventListener<K extends keyof WindowEventMap>(
     }, [handler]);
 
     useEffect(() => {
-        const listener = handlerRef.current;
+        const listener = (e: WindowEventMap[K]) =>
+            handlerRef.current && handlerRef.current(e);
         window.addEventListener(event, listener);
         return () => window.removeEventListener(event, listener);
     }, [event]);

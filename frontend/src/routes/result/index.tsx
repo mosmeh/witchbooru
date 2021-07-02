@@ -38,7 +38,7 @@ type HistoryState = {
 };
 
 function getState(): HistoryState {
-    return history.state;
+    return history.state as HistoryState;
 }
 
 const Result: FunctionalComponent = () => {
@@ -83,7 +83,7 @@ const Result: FunctionalComponent = () => {
             })
                 .then((response) => response.json())
                 .then(setResponseData)
-                .catch((err) => {
+                .catch((err: Error) => {
                     if (err.name === 'AbortError') {
                         return;
                     }

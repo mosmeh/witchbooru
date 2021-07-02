@@ -15,40 +15,6 @@
         "singleQuote": true,
         "tabWidth": 4
     },
-    "eslintConfig": {
-        "env": {
-            "browser": true,
-            "node": true
-        },
-        "parserOptions": {
-            "ecmaVersion": 2015,
-            "sourceType": "module"
-        },
-        "extends": [
-            "eslint:recommended",
-            "prettier"
-        ],
-        "overrides": [
-            {
-                "files": [
-                    "*.ts",
-                    "*.tsx"
-                ],
-                "env": {
-                    "browser": true
-                },
-                "parser": "@typescript-eslint/parser",
-                "extends": [
-                    "preact",
-                    "plugin:@typescript-eslint/recommended",
-                    "prettier"
-                ]
-            }
-        ],
-        "ignorePatterns": [
-            "build/"
-        ]
-    },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.3",
         "preact": "^10.5.14",
