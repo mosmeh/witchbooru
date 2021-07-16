@@ -18,7 +18,10 @@ def download(api: str, category: int) -> dict[str, str]:
         else:
             url_with_page = f'{url}&page=b{oldest}'
 
-        entries = requests.get(url_with_page).json()
+        res = requests.get(url_with_page)
+        res.raise_for_status()
+
+        entries = res.json()
         if len(entries) == 0:
             break
 
