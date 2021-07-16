@@ -156,9 +156,9 @@ def main(args: argparse.Namespace):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('metadata_dir', metavar='metadata-dir')
-    parser.add_argument('-g', '--general',
+    parser.add_argument('-g', '--general', required=True,
                         help='File containing list of general tags')
-    parser.add_argument('-c', '--character',
+    parser.add_argument('-c', '--character', required=True,
                         help='File containing list of characters')
     parser.add_argument('-m', '--mapping',
                         help='File containing tag mappings')
@@ -171,7 +171,7 @@ if __name__ == '__main__':
                         action=argparse.BooleanOptionalAction, default=True,
                         help='Calibrate scores')
     parser.add_argument('-p', '--processes', type=int, default=1)
-    parser.add_argument('-o', '--output')
+    parser.add_argument('-o', '--output', required=True)
     args = parser.parse_args()
 
     main(args)

@@ -87,7 +87,7 @@ if __name__ == '__main__':
                         action=argparse.BooleanOptionalAction, default=True,
                         help='Use only posts tagged with single character')
     parser.add_argument('-p', '--processes', type=int, default=1)
-    parser.add_argument('-o', '--output')
+    parser.add_argument('-o', '--output', required=True)
     args = parser.parse_args()
 
     main(args)

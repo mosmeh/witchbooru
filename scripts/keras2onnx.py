@@ -19,7 +19,7 @@ def main(args: argparse.Namespace):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('model', help='Model in Keras H5 format')
-    parser.add_argument('-o', '--output')
+    parser.add_argument('-o', '--output', required=True)
     args = parser.parse_args()
 
     main(args)
