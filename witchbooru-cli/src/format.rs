@@ -70,11 +70,44 @@ impl fmt::Display for Display<'_> {
 }
 
 fn format_tag(tag: &Tag, name_width: usize, score_width: usize) -> String {
+    use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+
+    // equivalent of encodeURIComponent()
+    const ESCAPED: AsciiSet = CONTROLS
+        .add(b' ')
+        .add(b'"')
+        .add(b'#')
+        .add(b'$')
+        .add(b'%')
+        .add(b'&')
+        .add(b'+')
+        .add(b',')
+        .add(b'/')
+        .add(b':')
+        .add(b';')
+        .add(b'<')
+        .add(b'=')
+        .add(b'>')
+        .add(b'?')
+        .add(b'@')
+        .add(b'[')
+        .add(b'\\')
+        .add(b']')
+        .add(b'^')
+        .add(b'`')
+        .add(b'{')
+        .add(b'|')
+        .add(b'}');
+
     const SCORE_BAR_WIDTH: usize = 8;
 
+    let url = format!(
+        "https://danbooru.donmai.us/wiki_pages/{}",
+        utf8_percent_encode(tag.name, &ESCAPED)
+    );
     let name = Hyperlink {
         text: tag.name,
-        url: &format!("https://danbooru.donmai.us/wiki_pages/{}", tag.name),
+        url: &url,
         width: name_width,
     };
     let score_bar_len = (tag.score * SCORE_BAR_WIDTH as f32).round() as usize;
