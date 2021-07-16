@@ -194,7 +194,9 @@ const TagTable: FunctionalComponent<TagTableProps> = ({
                         <td class={styles.tagNameColumn}>
                             <a
                                 title={name}
-                                href={`https://danbooru.donmai.us/wiki_pages/${name}`}
+                                href={`https://danbooru.donmai.us/wiki_pages/${encodeURIComponent(
+                                    name
+                                )}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
