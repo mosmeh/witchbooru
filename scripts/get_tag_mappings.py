@@ -8,17 +8,19 @@ IMPLICATIONS_API = 'https://danbooru.donmai.us/tag_implications.json'
 
 
 def download(api: str, category: int) -> dict[str, str]:
-    url = f'{api}?search[status]=active&search[category]={category}&limit=1000'
     oldest = None
     mapping = {}
 
     while True:
-        if oldest is None:
-            url_with_page = url
-        else:
-            url_with_page = f'{url}&page=b{oldest}'
+        params = {
+            'search[status]': 'active',
+            'search[category]': category,
+            'limit': 1000
+        }
+        if oldest:
+            params['page'] = f'b{oldest}'
 
-        res = requests.get(url_with_page)
+        res = requests.get(api, params)
         res.raise_for_status()
 
         entries = res.json()
