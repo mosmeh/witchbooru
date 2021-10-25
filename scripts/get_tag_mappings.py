@@ -49,7 +49,8 @@ def main(args: argparse.Namespace):
             'implications': download(IMPLICATIONS_API, 4)
         }
     }
-    json.dump(data, open(args.output, 'w'), separators=(',', ':'))
+    json.dump(data, open(args.output, 'w', encoding='utf-8'),
+              separators=(',', ':'))
 
 
 if __name__ == '__main__':

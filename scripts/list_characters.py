@@ -43,7 +43,7 @@ def count(params: Params, filename: str) -> dict[str, int]:
 
 def main(args: argparse.Namespace):
     if args.mapping:
-        mappings = json.load(open(args.mapping, 'r'))
+        mappings = json.load(open(args.mapping, 'r', encoding='utf-8'))
         mappings = mappings['character']
         aliases = mappings['aliases']
         implications = mappings['implications']
@@ -74,7 +74,7 @@ def main(args: argparse.Namespace):
     characters = sorted(characters, key=lambda x: x[1], reverse=True)
     characters = (x[0] for x in characters)
 
-    open(args.output, 'w').write('\n'.join(characters) + '\n')
+    open(args.output, 'w', encoding='utf-8').write('\n'.join(characters) + '\n')
 
 
 if __name__ == '__main__':

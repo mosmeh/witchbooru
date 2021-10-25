@@ -72,12 +72,14 @@ def count(params: Params, filename: str) -> CountData:
 
 def main(args: argparse.Namespace):
     if args.mapping:
-        mappings = json.load(open(args.mapping, 'r'))
+        mappings = json.load(open(args.mapping, 'r', encoding='utf-8'))
     else:
         mappings = None
 
-    general_tags = open(args.general, 'r').read().splitlines()
-    characters = open(args.character, 'r').read().splitlines()
+    general_tags = open(args.general, 'r',
+                        encoding='utf-8').read().splitlines()
+    characters = open(args.character, 'r',
+                      encoding='utf-8').read().splitlines()
     num_general_tags = len(general_tags)
     num_characters = len(characters)
 
