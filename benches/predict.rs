@@ -7,7 +7,7 @@ use witchbooru::{
     Classifier, Params,
 };
 
-use criterion::Criterion;
+use criterion::{BatchSize, Criterion};
 use std::{
     fs::File,
     io::{BufRead, BufReader},
@@ -28,7 +28,11 @@ fn predict(c: &mut Criterion) {
     criterion::black_box(classifier.predict(img.clone()).unwrap());
 
     c.bench_function("predict", |b| {
-        b.iter(|| criterion::black_box(classifier.predict(img.clone()).unwrap()))
+        b.iter_batched(
+            || img.clone(),
+            |img| classifier.predict(img).unwrap(),
+            BatchSize::SmallInput,
+        )
     });
 }
 
